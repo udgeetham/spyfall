@@ -5,7 +5,6 @@ import { MainGame, PlayerList } from "./Game";
 import { getUserDisplayName } from "./.hathora/base";
 import { HathoraClient, HathoraConnection } from "./.hathora/client";
 import { PlayerState } from "./.hathora/types";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const client = new HathoraClient(import.meta.env.VITE_APP_ID);
 

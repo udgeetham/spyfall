@@ -46,7 +46,7 @@ export function PlayerList({
     <>
       <h4>Players</h4>
       {players.map((player) => (
-        <div>
+        <div key={player}>
           <Button
             variant="outline-secondary"
             active={myVote === player}
