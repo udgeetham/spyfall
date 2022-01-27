@@ -2,10 +2,10 @@
   "name": "spyfall-server",
   "version": "0.0.1",
   "type": "module",
+  "dependencies": {
+    "ml-array-mode": "^1.1.5"
+  },
   "devDependencies": {
     "typescript": "^4.5.2"
-  },
-  "dependencies": {
-    "heap-js": "^2.1.6"
   }
 }

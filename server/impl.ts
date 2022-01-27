@@ -1,4 +1,4 @@
-import { Heap } from "heap-js";
+import mode from "ml-array-mode";
 import { wordList } from "./words";
 import { Methods, Context } from "./.hathora/methods";
 import { Response } from "./.hathora/base";
@@ -72,15 +72,8 @@ function getPhase(state: InternalState): GamePhase {
   } else if (state.votes.size < state.players.length) {
     return { type: "QuestionsPhase", val: QuestionsPhase.default() };
   } else {
-    return { type: "RevealPhase", val: { votedSpy: tallyVotes(state.votes), revealedSpy: state.spy! } };
+    //@ts-ignore
+    const votedSpy: UserId = mode(Array.from(state.votes.values()));
+    return { type: "RevealPhase", val: { votedSpy, revealedSpy: state.spy! } };
   }
-}
-
-function tallyVotes(votes: Map<UserId, UserId>): UserId {
-  // TODO: consider tie-breaking scenarios (favor spy?)
-  const maxHeap = new Heap<UserId>(Heap.maxComparator);
-  for (let value of votes.values()) {
-    maxHeap.push(value);
-  }
-  return maxHeap.pop()!;
 }
