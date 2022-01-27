@@ -1,0 +1,32 @@
+types:
+  LobbyPhase:
+    foo: string
+  QuestionsPhase:
+    foo: string
+  RevealPhase:
+    votedSpy: UserId
+    revealedSpy: UserId
+  GamePhase:
+    - LobbyPhase
+    - QuestionsPhase
+    - RevealPhase
+  PlayerState:
+    players: UserId[]
+    word: string?
+    myVote: UserId?
+    phase: GamePhase
+
+methods:
+  createGame:
+  joinGame:
+  startGame:
+  vote:
+    user: UserId
+
+auth:
+  anonymous:
+    separator: "-"
+
+userState: PlayerState
+initialize: createGame
+error: string
