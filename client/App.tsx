@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { Col, Container, Navbar, Row } from "react-bootstrap";
+import { MainGame, PlayerList } from "./Game";
+import { getUserDisplayName } from "./.hathora/base";
 import { HathoraClient, HathoraConnection } from "./.hathora/client";
 import { PlayerState } from "./.hathora/types";
-import { PlayerStateComponent } from "./plugins/PlayerState";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const client = new HathoraClient(import.meta.env.VITE_APP_ID);
 
@@ -45,10 +48,27 @@ function App({ token }: { token: string }) {
   }
 
   const user = HathoraClient.getUserFromToken(token);
+  if (!playerState.players.includes(user.id)) {
+    connection.joinGame({});
+  }
   return (
     <>
-      <div>{user.name}</div>
-      <PlayerStateComponent val={playerState} user={user} client={connection} />
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand>Spyfall</Navbar.Brand>
+          <Navbar.Text>{getUserDisplayName(user)}</Navbar.Text>
+        </Container>
+      </Navbar>
+      <Container style={{ marginTop: 50 }}>
+        <Row>
+          <Col style={{ textAlign: "center" }}>
+            <MainGame state={playerState} client={connection} />
+          </Col>
+          <Col style={{ textAlign: "center" }}>
+            <PlayerList players={playerState.players} myVote={playerState.myVote} connection={connection} />
+          </Col>
+        </Row>
+      </Container>
     </>
   );
 }
