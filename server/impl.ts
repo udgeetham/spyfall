@@ -29,15 +29,27 @@ export class Impl implements Methods<InternalState> {
     };
   }
   joinGame(state: InternalState, userId: UserId, ctx: Context, request: IJoinGameRequest): Response {
+    if (state.players.includes(userId)) {
+      return Response.error("You have already joined")
+    }
+    if (state.word !== undefined) {
+      return Response.error("Game has already started")
+    }
     state.players.push(userId);
     return Response.ok();
   }
   startGame(state: InternalState, userId: UserId, ctx: Context, request: IStartGameRequest): Response {
+    if (state.word !== undefined) {
+      return Response.error("Game has already started")
+    }
     state.word = wordList[ctx.randInt(wordList.length)];
     state.spy = state.players[ctx.randInt(state.players.length)];
     return Response.ok();
   }
   vote(state: InternalState, userId: UserId, ctx: Context, request: IVoteRequest): Response {
+    if (state.votes.size === state.players.length) {
+      return Response.error("Voting phase is over")
+    }
     state.votes.set(userId, request.user);
     return Response.ok();
   }
