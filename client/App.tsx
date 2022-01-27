@@ -44,5 +44,11 @@ function App({ token }: { token: string }) {
     return <div>Loading...</div>;
   }
 
-  return <PlayerStateComponent val={playerState} user={HathoraClient.getUserFromToken(token)} client={connection} />;
+  const user = HathoraClient.getUserFromToken(token);
+  return (
+    <>
+      <div>{user.name}</div>
+      <PlayerStateComponent val={playerState} user={user} client={connection} />
+    </>
+  );
 }
