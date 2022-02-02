@@ -12,7 +12,7 @@ export function MainGame({ state, client }: { state: PlayerState; client: Hathor
         <div>
           <InputGroup className="mb-3">
             <FormControl placeholder="Enter nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
-            <Button variant="primary" onClick={() => client.joinGame({ nickname: nickname })} type="submit">
+            <Button variant="primary" onClick={() => client.joinGame({ nickname })}>
               Join Game
             </Button>
           </InputGroup>
@@ -30,14 +30,10 @@ export function MainGame({ state, client }: { state: PlayerState; client: Hathor
     return (
       <>
         <h1>Voted spy</h1>
-        <h4>
-          <>{state.phase.val.votedSpy}</>
-        </h4>
+        <h4>{state.phase.val.votedSpy}</h4>
         <hr />
         <h1>Actual spy</h1>
-        <h4>
-          <>{state.phase.val.revealedSpy}</>
-        </h4>
+        <h4>{state.phase.val.revealedSpy}</h4>
       </>
     );
   }
@@ -60,9 +56,9 @@ export function PlayerList({
           <Button
             variant="outline-secondary"
             active={myVote === player}
-            onClick={() => connection.vote({ nickname: player })}
+            onClick={() => connection.vote({ user: player })}
           >
-            <>{player}</>
+            {player}
           </Button>
         </div>
       ))}

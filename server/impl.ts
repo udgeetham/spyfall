@@ -61,13 +61,13 @@ export class Impl implements Methods<InternalState> {
       return Response.error("Voting phase is over");
     }
 
-    state.votes.set(getNickname(state, userId), request.nickname);
+    state.votes.set(getNickname(state, userId), request.user);
     return Response.ok();
   }
   getUserState(state: InternalState, userId: UserId): PlayerState {
     const nickname = getNickname(state, userId);
     return {
-      nicknames: state.nicknames,
+      players: state.nicknames,
       word: nickname === state.spy ? undefined : state.word,
       phase: getPhase(state),
       myVote: state.votes.get(nickname),

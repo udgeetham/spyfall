@@ -59,7 +59,7 @@ function App({ token }: { token: string }) {
             <MainGame state={playerState} client={connection} />
           </Col>
           <Col style={{ textAlign: "center" }}>
-            <PlayerList players={playerState.nicknames} myVote={playerState.myVote} connection={connection} />
+            <PlayerList players={playerState.players} myVote={playerState.myVote} connection={connection} />
           </Col>
         </Row>
       </Container>

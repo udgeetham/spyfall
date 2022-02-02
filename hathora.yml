@@ -12,9 +12,9 @@ types:
     - QuestionsPhase
     - RevealPhase
   PlayerState:
-    nicknames: Nickname[]
+    players: Nickname[]
     word: string?
-    myVote: string?
+    myVote: Nickname?
     phase: GamePhase
 
 methods:
@@ -23,7 +23,7 @@ methods:
     nickname: Nickname
   startGame:
   vote:
-    nickname: Nickname
+    user: Nickname
 
 auth:
   anonymous:
