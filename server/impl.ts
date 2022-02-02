@@ -12,19 +12,22 @@ import {
   IJoinGameRequest,
   IStartGameRequest,
   IVoteRequest,
+  Nickname,
 } from "./.hathora/types";
 
 type InternalState = {
   players: UserId[];
+  nicknames: Nickname[];
   word?: string;
-  spy?: UserId;
-  votes: Map<UserId, UserId>;
+  spy?: Nickname;
+  votes: Map<Nickname, Nickname>;
 };
 
 export class Impl implements Methods<InternalState> {
   createGame(userId: UserId, ctx: Context, request: ICreateGameRequest): InternalState {
     return {
-      players: [userId],
+      players: [],
+      nicknames: [],
       votes: new Map(),
     };
   }
@@ -35,7 +38,11 @@ export class Impl implements Methods<InternalState> {
     if (state.word !== undefined) {
       return Response.error("Game has already started");
     }
+    if (state.nicknames.includes(request.nickname)) {
+      return Response.error("Nickname is already being used");
+    }
     state.players.push(userId);
+    state.nicknames.push(request.nickname);
     return Response.ok();
   }
   startGame(state: InternalState, userId: UserId, ctx: Context, request: IStartGameRequest): Response {
@@ -43,37 +50,44 @@ export class Impl implements Methods<InternalState> {
       return Response.error("Game has already started");
     }
     state.word = wordList[ctx.randInt(wordList.length)];
-    state.spy = state.players[ctx.randInt(state.players.length)];
+    state.spy = state.nicknames[ctx.randInt(state.nicknames.length)];
     return Response.ok();
   }
   vote(state: InternalState, userId: UserId, ctx: Context, request: IVoteRequest): Response {
     if (state.word === undefined) {
       return Response.error("Game not started yet");
     }
-    if (state.votes.size === state.players.length) {
+    if (state.votes.size === state.nicknames.length) {
       return Response.error("Voting phase is over");
     }
-    state.votes.set(userId, request.user);
+
+    state.votes.set(getNickname(state, userId), request.nickname);
     return Response.ok();
   }
   getUserState(state: InternalState, userId: UserId): PlayerState {
+    const nickname = getNickname(state, userId);
     return {
-      players: state.players,
-      word: userId === state.spy ? undefined : state.word,
+      nicknames: state.nicknames,
+      word: nickname === state.spy ? undefined : state.word,
       phase: getPhase(state),
-      myVote: state.votes.get(userId),
+      myVote: state.votes.get(nickname),
     };
   }
+}
+
+function getNickname(state: InternalState, userId: UserId) {
+  const idx = state.players.findIndex((player) => player === userId);
+  return state.nicknames[idx];
 }
 
 function getPhase(state: InternalState): GamePhase {
   if (state.word === undefined) {
     return { type: "LobbyPhase", val: LobbyPhase.default() };
-  } else if (state.votes.size < state.players.length) {
+  } else if (state.votes.size < state.nicknames.length) {
     return { type: "QuestionsPhase", val: QuestionsPhase.default() };
   } else {
     //@ts-ignore
-    const votedSpy: UserId = mode(Array.from(state.votes.values()));
+    const votedSpy: Nickname = mode(Array.from(state.votes.values()));
     return { type: "RevealPhase", val: { votedSpy, revealedSpy: state.spy! } };
   }
 }
