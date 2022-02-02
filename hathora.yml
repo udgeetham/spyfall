@@ -1,27 +1,29 @@
 types:
+  Nickname: string
   LobbyPhase:
     foo: string
   QuestionsPhase:
     foo: string
   RevealPhase:
-    votedSpy: UserId
-    revealedSpy: UserId
+    votedSpy: Nickname
+    revealedSpy: Nickname
   GamePhase:
     - LobbyPhase
     - QuestionsPhase
     - RevealPhase
   PlayerState:
-    players: UserId[]
+    nicknames: Nickname[]
     word: string?
-    myVote: UserId?
+    myVote: string?
     phase: GamePhase
 
 methods:
   createGame:
   joinGame:
+    nickname: Nickname
   startGame:
   vote:
-    user: UserId
+    nickname: Nickname
 
 auth:
   anonymous:

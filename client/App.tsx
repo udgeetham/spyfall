@@ -45,17 +45,12 @@ function App({ token }: { token: string }) {
   if (connection === undefined || playerState === undefined) {
     return <div>Loading...</div>;
   }
-
   const user = HathoraClient.getUserFromToken(token);
-  if (!playerState.players.includes(user.id)) {
-    connection.joinGame({});
-  }
   return (
     <>
       <Navbar bg="dark" variant="dark">
         <Container>
           <Navbar.Brand>Spyfall</Navbar.Brand>
-          <Navbar.Text>{getUserDisplayName(user)}</Navbar.Text>
         </Container>
       </Navbar>
       <Container style={{ marginTop: 50 }}>
@@ -64,7 +59,7 @@ function App({ token }: { token: string }) {
             <MainGame state={playerState} client={connection} />
           </Col>
           <Col style={{ textAlign: "center" }}>
-            <PlayerList players={playerState.players} myVote={playerState.myVote} connection={connection} />
+            <PlayerList players={playerState.nicknames} myVote={playerState.myVote} connection={connection} />
           </Col>
         </Row>
       </Container>

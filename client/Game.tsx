@@ -1,17 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
-import { lookupUser, getUserDisplayName } from "./.hathora/base";
+import React, { useState } from "react";
+import { Button, FormControl, InputGroup } from "react-bootstrap";
 import { HathoraConnection } from "./.hathora/client";
-import { PlayerState, UserId } from "./.hathora/types";
+import { Nickname, PlayerState } from "./.hathora/types";
 
 export function MainGame({ state, client }: { state: PlayerState; client: HathoraConnection }) {
+  const [nickname, setNickname] = useState<string>("");
   if (state.phase.type === "LobbyPhase") {
     return (
       <>
         <h1>Waiting for players to join...</h1>
-        <Button variant="primary" onClick={() => client.startGame({})}>
-          Start Game
-        </Button>
+        <div>
+          <InputGroup className="mb-3">
+            <FormControl placeholder="Enter nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+            <Button variant="primary" onClick={() => client.joinGame({ nickname: nickname })} type="submit">
+              Join Game
+            </Button>
+          </InputGroup>
+        </div>
+        <div>
+          <Button variant="primary" onClick={() => client.startGame({})}>
+            Start Game
+          </Button>
+        </div>
       </>
     );
   } else if (state.phase.type === "QuestionsPhase") {
@@ -21,12 +31,12 @@ export function MainGame({ state, client }: { state: PlayerState; client: Hathor
       <>
         <h1>Voted spy</h1>
         <h4>
-          <Player userId={state.phase.val.votedSpy} />
+          <>{state.phase.val.votedSpy}</>
         </h4>
         <hr />
         <h1>Actual spy</h1>
         <h4>
-          <Player userId={state.phase.val.revealedSpy} />
+          <>{state.phase.val.revealedSpy}</>
         </h4>
       </>
     );
@@ -38,8 +48,8 @@ export function PlayerList({
   myVote,
   connection,
 }: {
-  players: UserId[];
-  myVote: UserId | undefined;
+  players: Nickname[];
+  myVote: Nickname | undefined;
   connection: HathoraConnection;
 }) {
   return (
@@ -50,20 +60,12 @@ export function PlayerList({
           <Button
             variant="outline-secondary"
             active={myVote === player}
-            onClick={() => connection.vote({ user: player })}
+            onClick={() => connection.vote({ nickname: player })}
           >
-            <Player userId={player} />
+            <>{player}</>
           </Button>
         </div>
       ))}
     </>
   );
-}
-
-function Player({ userId }: { userId: UserId }) {
-  const [name, setName] = useState<string>("");
-  useEffect(() => {
-    lookupUser(userId).then((userData) => setName(getUserDisplayName(userData)));
-  }, [userId]);
-  return <>{name}</>;
 }
