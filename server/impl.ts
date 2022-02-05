@@ -1,19 +1,18 @@
 import mode from "ml-array-mode";
-import { wordList } from "./words";
-import { Methods, Context } from "./.hathora/methods";
-import { Response } from "./.hathora/base";
+import { Response } from "../api/base";
 import {
   LobbyPhase,
   QuestionsPhase,
   GamePhase,
   PlayerState,
   UserId,
-  ICreateGameRequest,
   IJoinGameRequest,
   IStartGameRequest,
   IVoteRequest,
   Nickname,
-} from "./.hathora/types";
+} from "../api/types";
+import { wordList } from "./words";
+import { Methods, Context } from "./.hathora/methods";
 
 type InternalState = {
   players: UserId[];
@@ -24,7 +23,7 @@ type InternalState = {
 };
 
 export class Impl implements Methods<InternalState> {
-  createGame(userId: UserId, ctx: Context, request: ICreateGameRequest): InternalState {
+  initialize(userId: UserId, ctx: Context): InternalState {
     return {
       players: [],
       nicknames: [],
@@ -49,8 +48,8 @@ export class Impl implements Methods<InternalState> {
     if (state.word !== undefined) {
       return Response.error("Game has already started");
     }
-    state.word = wordList[ctx.randInt(wordList.length)];
-    state.spy = state.nicknames[ctx.randInt(state.nicknames.length)];
+    state.word = ctx.chance.pickone(wordList);
+    state.spy = ctx.chance.pickone(state.nicknames);
     return Response.ok();
   }
   vote(state: InternalState, userId: UserId, ctx: Context, request: IVoteRequest): Response {

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { Col, Container, Navbar, Row } from "react-bootstrap";
 import { MainGame, PlayerList } from "./Game";
-import { getUserDisplayName } from "./.hathora/base";
-import { HathoraClient, HathoraConnection } from "./.hathora/client";
-import { PlayerState } from "./.hathora/types";
+import { HathoraClient, HathoraConnection } from "../.hathora/client";
+import { PlayerState } from "../../api/types";
 
 const client = new HathoraClient(import.meta.env.VITE_APP_ID);
 
@@ -26,7 +25,7 @@ function App({ token }: { token: string }) {
   useEffect(() => {
     if (url === "/") {
       client
-        .connectNew(token, {}, ({ state }) => setPlayerState(state), console.error)
+        .connectNew(token, ({ state }) => setPlayerState(state), console.error)
         .then((connection) => {
           setConnection(connection);
           const newUrl = `/game/${connection.stateId}`;

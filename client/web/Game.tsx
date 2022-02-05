@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, FormControl, InputGroup } from "react-bootstrap";
-import { HathoraConnection } from "./.hathora/client";
-import { Nickname, PlayerState } from "./.hathora/types";
+import { Nickname, PlayerState } from "../../api/types";
+import { HathoraConnection } from "../.hathora/client";
 
 export function MainGame({ state, client }: { state: PlayerState; client: HathoraConnection }) {
   const [nickname, setNickname] = useState<string>("");
