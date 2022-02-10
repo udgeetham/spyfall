@@ -23,6 +23,7 @@ methods:
   startGame:
   vote:
     user: Nickname
+  playAgain:
 
 auth:
   anonymous:

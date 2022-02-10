@@ -34,6 +34,9 @@ export function MainGame({ state, client }: { state: PlayerState; client: Hathor
         <hr />
         <h1>Actual spy</h1>
         <h4>{state.phase.val.revealedSpy}</h4>
+        <Button variant="primary" onClick={() => client.playAgain({})}>
+          Play Again
+        </Button>
       </>
     );
   }

@@ -1,4 +1,5 @@
 import mode from "ml-array-mode";
+import BiMap from "bidirectional-map";
 import { Response } from "../api/base";
 import {
   LobbyPhase,
@@ -10,12 +11,13 @@ import {
   IStartGameRequest,
   IVoteRequest,
   Nickname,
+  IPlayAgainRequest,
 } from "../api/types";
 import { wordList } from "./words";
 import { Methods, Context } from "./.hathora/methods";
 
 type InternalState = {
-  players: UserId[];
+  players: BiMap<UserId>;
   nicknames: Nickname[];
   word?: string;
   spy?: Nickname;
@@ -25,22 +27,22 @@ type InternalState = {
 export class Impl implements Methods<InternalState> {
   initialize(userId: UserId, ctx: Context): InternalState {
     return {
-      players: [],
+      players: new BiMap(),
       nicknames: [],
       votes: new Map(),
     };
   }
   joinGame(state: InternalState, userId: UserId, ctx: Context, request: IJoinGameRequest): Response {
-    if (state.players.includes(userId)) {
+    if (state.players.has(userId)) {
       return Response.error("You have already joined");
     }
     if (state.word !== undefined) {
       return Response.error("Game has already started");
     }
-    if (state.nicknames.includes(request.nickname)) {
+    if (state.players.hasValue(request.nickname)) {
       return Response.error("Nickname is already being used");
     }
-    state.players.push(userId);
+    state.players.set(userId, request.nickname);
     state.nicknames.push(request.nickname);
     return Response.ok();
   }
@@ -48,23 +50,29 @@ export class Impl implements Methods<InternalState> {
     if (state.word !== undefined) {
       return Response.error("Game has already started");
     }
-    state.word = ctx.chance.pickone(wordList);
-    state.spy = ctx.chance.pickone(state.nicknames);
+    setupNewGame(state, ctx);
     return Response.ok();
   }
   vote(state: InternalState, userId: UserId, ctx: Context, request: IVoteRequest): Response {
     if (state.word === undefined) {
       return Response.error("Game not started yet");
     }
-    if (state.votes.size === state.nicknames.length) {
+    if (state.votes.size === state.players.size) {
       return Response.error("Voting phase is over");
     }
 
-    state.votes.set(getNickname(state, userId), request.user);
+    state.votes.set(state.players.get(userId), request.user);
+    return Response.ok();
+  }
+  playAgain(state: InternalState, userId: string, ctx: Context, request: IPlayAgainRequest): Response {
+    if (state.votes.size !== state.players.size) {
+      return Response.error("Can not start a new game when a game is already in progress");
+    }
+    setupNewGame(state, ctx);
     return Response.ok();
   }
   getUserState(state: InternalState, userId: UserId): PlayerState {
-    const nickname = getNickname(state, userId);
+    const nickname = state.players.get(userId);
     return {
       players: state.nicknames,
       word: nickname === state.spy ? undefined : state.word,
@@ -74,15 +82,17 @@ export class Impl implements Methods<InternalState> {
   }
 }
 
-function getNickname(state: InternalState, userId: UserId) {
-  const idx = state.players.findIndex((player) => player === userId);
-  return state.nicknames[idx];
+function setupNewGame(state: InternalState, ctx: Context) {
+  state.word = ctx.chance.pickone(wordList);
+  state.nicknames = ctx.chance.shuffle(Array.from(state.players.values()));
+  state.spy = ctx.chance.pickone(state.nicknames);
+  state.votes = new Map();
 }
 
 function getPhase(state: InternalState): GamePhase {
   if (state.word === undefined) {
     return { type: "LobbyPhase", val: LobbyPhase.default() };
-  } else if (state.votes.size < state.nicknames.length) {
+  } else if (state.votes.size < state.players.size) {
     return { type: "QuestionsPhase", val: QuestionsPhase.default() };
   } else {
     //@ts-ignore
